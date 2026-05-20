@@ -130,7 +130,7 @@ export default function AddRepoForm({ onSuccess }: AddRepoFormProps) {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="如 https://github.com/owner/repo 或 owner/repo"
+            placeholder={t('repos.urlPlaceholder')}
             className="flex-1 px-3 py-2 bg-ctp-surface1 text-ctp-text rounded-lg border border-ctp-surface2 focus:outline-none focus:ring-1 focus:ring-ctp-blue focus:border-ctp-blue text-sm placeholder-ctp-overlay0 disabled:opacity-50"
             disabled={loading}
           />

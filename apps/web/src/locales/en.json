@@ -72,6 +72,7 @@
   "common.next": "Next",
   "common.backToTop": "Back to top",
   "common.supportedPlatforms": "Supports GitHub, GitLab, Forgejo, and Gitea (including Codeberg and other self-hosted instances)",
+  "repos.urlPlaceholder": "e.g. https://github.com/owner/repo or owner/repo",
   "filter.placeholder": "Filter by repository...",
   "lang.en": "English",
   "lang.zh": "中文"
