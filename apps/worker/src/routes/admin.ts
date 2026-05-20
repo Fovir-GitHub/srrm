@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { getRepos, addRepo, deleteRepo, getLatestReleases, deleteReleasesForRepo } from '../services/db';
+import { getRepos, addRepo, deleteRepo, getLatestReleases, deleteReleasesForRepo, getRepoReleaseCounts } from '../services/db';
 import { detectPlatform, buildRepoUrl } from '../services/platform';
 import type { Env, Repo, User, Release } from '@srrm/shared';
 import { nanoid } from 'nanoid';
@@ -14,6 +14,17 @@ adminRoutes.get('/repos', async (c) => {
   } catch (err) {
     console.error('[Admin Repos Get Error]', err);
     return c.json({ error: '获取仓库列表失败' }, 500);
+  }
+});
+
+// GET /api/admin/repos/stats — 获取每个仓库的 release 数量
+adminRoutes.get('/repos/stats', async (c) => {
+  try {
+    const counts = await getRepoReleaseCounts(c.env.DB);
+    return c.json({ stats: counts });
+  } catch (err) {
+    console.error('[Admin Repos Stats Error]', err);
+    return c.json({ error: '获取统计失败' }, 500);
   }
 });
 

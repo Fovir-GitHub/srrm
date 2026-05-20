@@ -76,6 +76,7 @@ export interface Repo {
   repoUrl: string;      // 仓库访问 URL
   addedAt: string;      // ISO 8601
   addedBy: string;      // 添加者邮箱
+  releaseCount?: number; // Release 数量（可选，由 stats 接口填充）
 }
 
 /**

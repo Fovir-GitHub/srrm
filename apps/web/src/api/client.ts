@@ -40,6 +40,10 @@ export const api = {
         const result = await request<{ repos: Repo[] }>('/api/admin/repos');
         return result.repos;
       },
+      stats: async (): Promise<Record<string, number>> => {
+        const result = await request<{ stats: Record<string, number> }>('/api/admin/repos/stats');
+        return result.stats;
+      },
       add: (body: { url: string } | { owner: string; repo: string }) =>
         request<Repo>('/api/admin/repos', { method: 'POST', body: JSON.stringify(body) }),
       remove: (id: string) =>
