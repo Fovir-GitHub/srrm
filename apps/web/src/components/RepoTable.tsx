@@ -55,7 +55,7 @@ export default function RepoTable({ repos, onRemove }: RepoTableProps) {
               className="hover:bg-white/[0.03] transition-colors"
             >
               <td className="px-4 py-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <span className="text-ctp-blue shrink-0">
                     <PlatformIcon platform={repo.platform || 'github'} />
                   </span>
@@ -63,8 +63,8 @@ export default function RepoTable({ repos, onRemove }: RepoTableProps) {
                     href={repo.repoUrl || 'https://github.com/' + repo.fullName}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-medium text-ctp-subtext1 hover:text-ctp-blue hover:underline transition-colors"
-                    title={repo.repoUrl}
+                    className="font-medium text-ctp-subtext1 hover:text-ctp-blue hover:underline transition-colors break-all"
+                    title={repo.fullName}
                   >
                     {repo.fullName}
                   </a>
