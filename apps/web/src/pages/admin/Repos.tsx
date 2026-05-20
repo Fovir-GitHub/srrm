@@ -8,6 +8,7 @@ import PlatformIcon from '../../components/PlatformIcon';
 import type { Repo } from '@srrm/shared';
 
 type SortKey = 'addedAt' | 'name' | 'releaseCount';
+type SortDir = 'asc' | 'desc';
 
 export default function Repos() {
   const { t } = useI18n();
@@ -17,6 +18,16 @@ export default function Repos() {
   const queryClient = useQueryClient();
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('addedAt');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortKey(key);
+      setSortDir(key === 'name' ? 'asc' : 'desc');
+    }
+  };
 
   const handleRemoveConfirm = async (id: string) => {
     setRemovingId(id);
@@ -36,17 +47,18 @@ export default function Repos() {
       releaseCount: stats[r.fullName] ?? 0,
     }));
     list.sort((a, b) => {
+      let cmp = 0;
       if (sortKey === 'addedAt') {
-        return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+        cmp = new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime();
+      } else if (sortKey === 'name') {
+        cmp = a.repo.localeCompare(b.repo, undefined, { sensitivity: 'base' });
+      } else {
+        cmp = a.releaseCount - b.releaseCount;
       }
-      if (sortKey === 'name') {
-        return a.fullName.localeCompare(b.fullName, undefined, { sensitivity: 'base' });
-      }
-      // releaseCount
-      return b.releaseCount - a.releaseCount;
+      return sortDir === 'asc' ? cmp : -cmp;
     });
     return list;
-  }, [repos, stats, sortKey]);
+  }, [repos, stats, sortKey, sortDir]);
 
   if (isLoading) {
     return (
@@ -91,18 +103,21 @@ export default function Repos() {
             <span className="text-xs text-ctp-overlay0 mr-1">{t('repos.sortBy')}</span>
             <SortButton
               active={sortKey === 'addedAt'}
-              onClick={() => setSortKey('addedAt')}
+              onClick={() => toggleSort('addedAt')}
               label={t('repos.sortAdded')}
+              dir={sortKey === 'addedAt' ? sortDir : null}
             />
             <SortButton
               active={sortKey === 'name'}
-              onClick={() => setSortKey('name')}
+              onClick={() => toggleSort('name')}
               label={t('repos.sortName')}
+              dir={sortKey === 'name' ? sortDir : null}
             />
             <SortButton
               active={sortKey === 'releaseCount'}
-              onClick={() => setSortKey('releaseCount')}
+              onClick={() => toggleSort('releaseCount')}
               label={t('repos.sortReleases')}
+              dir={sortKey === 'releaseCount' ? sortDir : null}
             />
           </div>
         </div>
@@ -138,21 +153,28 @@ function SortButton({
   active,
   onClick,
   label,
+  dir,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
+  dir: SortDir | null;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1 text-xs rounded-md border transition-colors font-medium ${
+      className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md border transition-colors font-medium ${
         active
           ? 'bg-ctp-blue/15 text-ctp-blue border-ctp-blue/30'
           : 'bg-ctp-surface1 text-ctp-subtext1 border-ctp-surface2 hover:bg-ctp-surface2 hover:text-ctp-text'
       }`}
     >
       {label}
+      {active && dir && (
+        <span className="text-[10px] opacity-70">
+          {dir === 'asc' ? '↑' : '↓'}
+        </span>
+      )}
     </button>
   );
 }
