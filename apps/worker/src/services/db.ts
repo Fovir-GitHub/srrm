@@ -194,6 +194,19 @@ export async function deleteReleasesForRepo(
   await db.prepare('DELETE FROM releases WHERE repo_full_name = ?').bind(repoFullName).run();
 }
 
+// ── Stats ───────────────────────────────────────────────
+
+export async function getRepoReleaseCounts(db: D1Database): Promise<Record<string, number>> {
+  const { results } = await db
+    .prepare('SELECT repo_full_name, COUNT(*) as cnt FROM releases GROUP BY repo_full_name')
+    .all();
+  const counts: Record<string, number> = {};
+  for (const row of results as any[]) {
+    counts[row.repo_full_name] = Number(row.cnt);
+  }
+  return counts;
+}
+
 // ── Config ──────────────────────────────────────────────
 
 export async function getConfig(db: D1Database, key: string): Promise<string | null> {

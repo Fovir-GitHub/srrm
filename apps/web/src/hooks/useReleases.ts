@@ -29,6 +29,14 @@ export function useAdminRepos() {
   });
 }
 
+export function useAdminReposStats() {
+  return useQuery<Record<string, number>>({
+    queryKey: ['admin-repos-stats'],
+    queryFn: () => api.admin.repos.stats(),
+    staleTime: 1000 * 60 * 5, // 5分钟
+  });
+}
+
 export function useTriggerScrape() {
   const queryClient = useQueryClient();
 

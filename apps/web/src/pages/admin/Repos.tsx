@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { useAdminRepos, useTriggerScrape } from '../../hooks/useReleases';
+import { useAdminRepos, useAdminReposStats, useTriggerScrape } from '../../hooks/useReleases';
 import AddRepoForm from '../../components/AddRepoForm';
 import { useQueryClient } from '@tanstack/react-query';
 import { useI18n } from '../../contexts/I18nContext';
 import PlatformIcon from '../../components/PlatformIcon';
+import type { Repo } from '@srrm/shared';
+
+type SortKey = 'addedAt' | 'name' | 'releaseCount';
 
 export default function Repos() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { data: repos = [], isLoading, error, refetch } = useAdminRepos();
+  const { data: stats = {} } = useAdminReposStats();
   const queryClient = useQueryClient();
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey>('addedAt');
 
   const handleRemoveConfirm = async (id: string) => {
     setRemovingId(id);
@@ -24,6 +29,24 @@ export default function Repos() {
       setRemovingId(null);
     }
   };
+
+  const sortedRepos = useMemo(() => {
+    const list = repos.map((r: Repo) => ({
+      ...r,
+      releaseCount: stats[r.fullName] ?? 0,
+    }));
+    list.sort((a, b) => {
+      if (sortKey === 'addedAt') {
+        return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+      }
+      if (sortKey === 'name') {
+        return a.fullName.localeCompare(b.fullName, undefined, { sensitivity: 'base' });
+      }
+      // releaseCount
+      return b.releaseCount - a.releaseCount;
+    });
+    return list;
+  }, [repos, stats, sortKey]);
 
   if (isLoading) {
     return (
@@ -59,9 +82,30 @@ export default function Repos() {
       <AddRepoForm onSuccess={() => refetch()} />
 
       <div>
-        <h2 className="text-lg font-semibold text-ctp-text mb-4">
-          {t('repos.monitoring', { count: String(repos.length) })}
-        </h2>
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h2 className="text-lg font-semibold text-ctp-text">
+            {t('repos.monitoring', { count: String(repos.length) })}
+          </h2>
+          {/* Sort controls */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-ctp-overlay0 mr-1">{t('repos.sortBy')}</span>
+            <SortButton
+              active={sortKey === 'addedAt'}
+              onClick={() => setSortKey('addedAt')}
+              label={t('repos.sortAdded')}
+            />
+            <SortButton
+              active={sortKey === 'name'}
+              onClick={() => setSortKey('name')}
+              label={t('repos.sortName')}
+            />
+            <SortButton
+              active={sortKey === 'releaseCount'}
+              onClick={() => setSortKey('releaseCount')}
+              label={t('repos.sortReleases')}
+            />
+          </div>
+        </div>
 
         {repos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -75,10 +119,11 @@ export default function Repos() {
           </div>
         ) : (
           <div className="space-y-1">
-            {repos.map((repo: any) => (
+            {sortedRepos.map((repo) => (
               <RepoCard
                 key={repo.id}
                 repo={repo}
+                releaseCount={repo.releaseCount}
                 onRemoveConfirm={handleRemoveConfirm}
               />
             ))}
@@ -89,11 +134,36 @@ export default function Repos() {
   );
 }
 
+function SortButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-2.5 py-1 text-xs rounded-md border transition-colors font-medium ${
+        active
+          ? 'bg-ctp-blue/15 text-ctp-blue border-ctp-blue/30'
+          : 'bg-ctp-surface1 text-ctp-subtext1 border-ctp-surface2 hover:bg-ctp-surface2 hover:text-ctp-text'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 function RepoCard({
   repo,
+  releaseCount,
   onRemoveConfirm,
 }: {
-  repo: { id: string; fullName: string; repoUrl: string; platform: string; addedAt: string };
+  repo: Repo & { releaseCount: number };
+  releaseCount: number;
   onRemoveConfirm: (id: string) => void;
 }) {
   const { t } = useI18n();
@@ -143,6 +213,10 @@ function RepoCard({
             </a>
             <span className="text-[11px] text-ctp-overlay0 shrink-0">·</span>
             <span className="text-[11px] text-ctp-overlay0 shrink-0">{relativeTime(repo.addedAt)}</span>
+            <span className="text-[11px] text-ctp-overlay0 shrink-0">·</span>
+            <span className="text-[11px] text-ctp-overlay0 shrink-0">
+              {t('repos.releaseCount', { count: String(releaseCount) })}
+            </span>
           </div>
         </div>
       </div>
