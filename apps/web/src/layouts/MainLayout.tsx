@@ -1,18 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useI18n } from '../contexts/I18nContext';
 
-function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+function NavLink({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) {
   const location = useLocation();
   const active = location.pathname === to;
   return (
     <Link
       to={to}
+      onClick={onClick}
       className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors ${
         active
           ? 'border-b-2 border-ctp-blue text-ctp-text'
           : 'border-b-2 border-transparent text-ctp-overlay0 hover:text-ctp-subtext1 hover:border-ctp-surface1'
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function MobileNavLink({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) {
+  const location = useLocation();
+  const active = location.pathname === to;
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className={`block px-4 py-3 text-sm font-medium transition-colors border-l-2 ${
+        active
+          ? 'border-ctp-blue text-ctp-text bg-ctp-blue/5'
+          : 'border-transparent text-ctp-subtext1 hover:text-ctp-text hover:bg-white/5'
       }`}
     >
       {children}
@@ -25,6 +44,7 @@ export default function Layout() {
   const { locale, setLocale, t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -40,6 +60,21 @@ export default function Layout() {
     setLocale(locale === 'en' ? 'zh' : 'en');
     setLangMenuOpen(false);
   };
+
+  // Close mobile nav on route change
+  const location = useLocation();
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile nav on resize to desktop
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth >= 640) setMobileNavOpen(false); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const closeMobileNav = () => setMobileNavOpen(false);
 
   return (
     <div className="min-h-screen bg-ctp-base text-ctp-text">
@@ -131,7 +166,7 @@ export default function Layout() {
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ctp-surface1 text-xs font-medium text-ctp-subtext1">
                       {initials}
                     </span>
-                    <span className="text-ctp-subtext1">{user.email}</span>
+                    <span className="hidden sm:inline text-ctp-subtext1">{user.email}</span>
                     <svg
                       className={`h-3.5 w-3.5 text-ctp-overlay0 transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}
                       fill="none"
@@ -167,9 +202,41 @@ export default function Layout() {
                   </Link>
                 )
               )}
+
+              {/* Mobile hamburger button */}
+              <button
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className="sm:hidden inline-flex items-center justify-center p-2 rounded-lg text-ctp-subtext1 hover:text-ctp-text hover:bg-white/5 transition-colors"
+                aria-label="Toggle navigation"
+              >
+                {mobileNavOpen ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile navigation panel */}
+        {mobileNavOpen && (
+          <div className="sm:hidden border-t border-white/10 bg-ctp-mantle/95 backdrop-blur-sm">
+            <div className="py-2">
+              <MobileNavLink to="/" onClick={closeMobileNav}>{t('nav.releases')}</MobileNavLink>
+              {user?.role === 'admin' && (
+                <>
+                  <MobileNavLink to="/admin" onClick={closeMobileNav}>{t('nav.repos')}</MobileNavLink>
+                  <MobileNavLink to="/admin/settings" onClick={closeMobileNav}>{t('nav.settings')}</MobileNavLink>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

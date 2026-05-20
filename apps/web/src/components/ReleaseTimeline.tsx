@@ -151,48 +151,52 @@ function ReleaseCard({ release, isOpen, onToggle }: {
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-3 py-3 px-4 text-left hover:bg-white/[0.03] transition-colors group rounded-lg mx-[-4px] px-4"
+        className="flex w-full items-start gap-2 py-3 px-3 sm:px-4 text-left hover:bg-white/[0.03] transition-colors group rounded-lg mx-[-4px] sm:px-4 px-3"
       >
-        <span className={`w-2 h-2 rounded-full shrink-0 ${statusColor(release)}`} />
+        <span className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${statusColor(release)}`} />
 
-        <span className="font-medium text-ctp-subtext1 truncate text-sm">
-          {release.repoFullName}
-        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium text-ctp-subtext1 text-sm break-all">
+              {release.repoFullName}
+            </span>
 
-        <a
-          href={release.htmlUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleTagClick}
-          onMouseDown={(e) => e.preventDefault()}
-          className="inline-flex items-center shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium bg-ctp-blue/15 text-ctp-blue border border-ctp-blue/25 hover:underline cursor-pointer transition-colors"
-        >
-          {release.tagName}
-        </a>
+            <a
+              href={release.htmlUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleTagClick}
+              onMouseDown={(e) => e.preventDefault()}
+              className="inline-flex items-center shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium bg-ctp-blue/15 text-ctp-blue border border-ctp-blue/25 hover:underline cursor-pointer transition-colors"
+            >
+              {release.tagName}
+            </a>
 
-        {!!release.isPrerelease ? (
-          <span className="inline-flex items-center shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium bg-ctp-orange/15 text-ctp-orange border border-ctp-orange/25">
-            {t('feed.prerelease')}
-          </span>
-        ) : null}
+            {!!release.isPrerelease ? (
+              <span className="inline-flex items-center shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium bg-ctp-orange/15 text-ctp-orange border border-ctp-orange/25">
+                {t('feed.prerelease')}
+              </span>
+            ) : null}
+          </div>
 
-        {release.name && release.name !== release.tagName && (
-          <span className="text-ctp-overlay0 text-sm truncate flex-1">
-            {release.name}
-          </span>
-        )}
+          <div className="flex items-center gap-2 mt-1">
+            {release.name && release.name !== release.tagName && (
+              <span className="text-ctp-overlay0 text-xs truncate flex-1 min-w-0">
+                {release.name}
+              </span>
+            )}
 
-        <div className="flex items-center gap-2 shrink-0 ml-auto">
-          <span className="text-[11px] text-ctp-overlay0">
-            {relativeTime(release.publishedAt)}
-          </span>
-          <span
-            className={`text-[10px] text-ctp-overlay0 transition-transform duration-200 ${
-              isOpen ? 'rotate-180' : ''
-            }`}
-          >
-            ▾
-          </span>
+            <span className="text-[11px] text-ctp-overlay0 shrink-0">
+              {relativeTime(release.publishedAt)}
+            </span>
+            <span
+              className={`text-[10px] text-ctp-overlay0 transition-transform duration-200 shrink-0 ${
+                isOpen ? 'rotate-180' : ''
+              }`}
+            >
+              ▾
+            </span>
+          </div>
         </div>
       </button>
 

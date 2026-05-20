@@ -117,9 +117,9 @@ function RepoCard({
   };
 
   return (
-    <div className="flex items-center justify-between py-3 px-4 rounded-lg border border-ctp-surface1/50 hover:bg-white/[0.02] transition-colors group">
-      <div className="flex items-center gap-3 min-w-0 flex-1">
-        <span className="text-ctp-overlay1 shrink-0">
+    <div className="py-3 px-4 rounded-lg border border-ctp-surface1/50 hover:bg-white/[0.02] transition-colors group">
+      <div className="flex items-start gap-3">
+        <span className="text-ctp-overlay1 shrink-0 mt-0.5">
           <PlatformIcon platform={repo.platform || 'github'} size={18} />
         </span>
 
@@ -128,48 +128,50 @@ function RepoCard({
             href={repo.repoUrl || 'https://github.com/' + repo.fullName}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-ctp-text truncate hover:text-ctp-blue hover:underline transition-colors text-sm"
+            className="font-medium text-ctp-text break-all hover:text-ctp-blue hover:underline transition-colors text-sm"
           >
             {repo.fullName}
           </a>
-          <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
             <a
               href={repo.repoUrl || 'https://github.com/' + repo.fullName}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-ctp-overlay0 hover:text-ctp-subtext1 truncate max-w-[200px]"
+              className="text-[11px] text-ctp-overlay0 hover:text-ctp-subtext1 break-all"
             >
               {repo.repoUrl || 'github.com/' + repo.fullName}
             </a>
-            <span className="text-[11px] text-ctp-overlay0">·</span>
-            <span className="text-[11px] text-ctp-overlay0">{relativeTime(repo.addedAt)}</span>
+            <span className="text-[11px] text-ctp-overlay0 shrink-0">·</span>
+            <span className="text-[11px] text-ctp-overlay0 shrink-0">{relativeTime(repo.addedAt)}</span>
           </div>
         </div>
       </div>
 
-      {!confirming ? (
-        <button
-          onClick={startConfirm}
-          className="text-[12px] text-ctp-overlay1 hover:text-ctp-red hover:bg-ctp-red/10 rounded-lg px-3 py-1.5 transition-colors shrink-0 ml-2"
-        >
-          {t('repos.remove')}
-        </button>
-      ) : (
-        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+      <div className="flex items-center gap-2 mt-2 ml-7">
+        {!confirming ? (
           <button
-            onClick={confirmRemove}
-            className="text-[12px] bg-ctp-red text-ctp-base font-medium rounded-lg px-3 py-1.5 hover:bg-ctp-red/90 transition-colors"
+            onClick={startConfirm}
+            className="text-[12px] text-ctp-overlay1 hover:text-ctp-red hover:bg-ctp-red/10 rounded-lg px-3 py-1.5 transition-colors"
           >
-            {t('repos.confirmRemove')}
+            {t('repos.remove')}
           </button>
-          <button
-            onClick={cancelConfirm}
-            className="text-[12px] text-ctp-subtext1 hover:text-ctp-text rounded-lg px-2.5 py-1.5 transition-colors"
-          >
-            {t('repos.cancelRemove')}
-          </button>
-        </div>
-      )}
+        ) : (
+          <>
+            <button
+              onClick={confirmRemove}
+              className="text-[12px] bg-ctp-red text-ctp-base font-medium rounded-lg px-3 py-1.5 hover:bg-ctp-red/90 transition-colors"
+            >
+              {t('repos.confirmRemove')}
+            </button>
+            <button
+              onClick={cancelConfirm}
+              className="text-[12px] text-ctp-subtext1 hover:text-ctp-text rounded-lg px-2.5 py-1.5 transition-colors"
+            >
+              {t('repos.cancelRemove')}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
