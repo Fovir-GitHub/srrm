@@ -61,6 +61,9 @@ export type Env = {
 
   // Favicon URL (可选，自定义站点图标)
   FAVICON_URL?: string;
+
+  // Background image URL (可选，自定义背景图片)
+  BACKGROUND_URL?: string;
 };
 
 /**

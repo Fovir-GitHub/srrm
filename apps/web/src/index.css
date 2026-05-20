@@ -31,9 +31,30 @@ html {
   color-scheme: dark;
 }
 
+/* Background image layer */
+html.has-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--bg-image-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  pointer-events: none;
+}
+
 body {
   background-color: var(--ctp-crust);
   color: var(--ctp-text);
+  position: relative;
+  z-index: 1;
+}
+
+/* When background image is set, make body bg semi-transparent */
+html.has-bg body {
+  background-color: rgba(17, 17, 27, 0.85);
 }
 
 /* ===== Tailwind 暗色模式工具类 (data-theme="dark") ===== */

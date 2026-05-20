@@ -16,5 +16,8 @@ export default defineConfig({
     'import.meta.env.VITE_API_BASE': JSON.stringify(
       process.env.VITE_API_BASE || ''
     ),
+    'import.meta.env.VITE_BACKGROUND_URL': JSON.stringify(
+      process.env.VITE_BACKGROUND_URL || ''
+    ),
   },
 });
