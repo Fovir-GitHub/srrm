@@ -306,12 +306,7 @@ for (const release of newReleases) {
 
 ---
 
-## 🚀 后继扩展路线（Post-v1）
-
-### v1.4 · 多平台增强
-- [ ] GitLab Releases 完整支持
-- [ ] Forgejo / Gitea 实例支持
-- [ ] 平台自动检测优化
+## 🚀 暂定后继扩展路线
 
 ### v1.5 · 用户体验
 - [ ] 抓取日志查看页面
