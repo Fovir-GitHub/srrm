@@ -45,3 +45,38 @@ CREATE INDEX IF NOT EXISTS idx_releases_date ON releases (date(published_at));
 CREATE INDEX IF NOT EXISTS idx_releases_platform ON releases (platform);
 
 CREATE INDEX IF NOT EXISTS idx_releases_id ON releases (id);
+
+CREATE TABLE IF NOT EXISTS platform (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    type TEXT NOT NULL DEFAULT "github",
+    base_url TEXT NOT NULL DEFAULT "https://github.com"
+);
+
+CREATE TABLE IF NOT EXISTS repo (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    platform_id INTEGER NOT NULL REFERENCES platform (id),
+    owner TEXT NOT NULL,
+    repo_name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    added_by INTEGER NOT NULL REFERENCES user (id)
+);
+
+CREATE TABLE IF NOT EXISTS release (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    repo_id INTEGER NOT NULL REFERENCES repo (id),
+    tag_name TEXT NOT NULL,
+    name TEXT NOT NULL DEFAULT "",
+    body TEXT NOT NULL DEFAULT "",
+    body_html TEXT NOT NULL DEFAULT "",
+    published_at DATETIME NOT NULL,
+    is_prerelease INTEGER NOT NULL DEFAULT 0,
+    is_draft INTEGER NOT NULL DEFAULT 0,
+    scraped_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (repo_id, tag_name)
+);
+
+CREATE TABLE IF NOT EXISTS user (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name TEXT NOT NULL
+);
