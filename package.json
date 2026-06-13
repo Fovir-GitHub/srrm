@@ -10,7 +10,9 @@
     "deploy": "pnpm --filter web build && wrangler deploy --cwd apps/worker",
     "deploy:preview": "pnpm --filter web build && wrangler deploy --cwd apps/worker --env preview",
     "lint": "eslint .",
-    "typecheck": "pnpm --filter @srrm/worker tsc --noEmit && pnpm --filter @srrm/shared tsc --noEmit && pnpm --filter @srrm/web tsc --noEmit"
+    "typecheck": "pnpm --filter @srrm/worker tsc --noEmit && pnpm --filter @srrm/shared tsc --noEmit && pnpm --filter @srrm/web tsc --noEmit",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,html,css}\" && pnpm run format:sql",
+    "format:sql": "find . -name '*.sql' -exec pg_format -u 0 -U 0 --no-extra-line -i {} \\;"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
