@@ -9,6 +9,7 @@ import AddRepoForm from "../../components/AddRepoForm";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "../../contexts/I18nContext";
 import PlatformIcon from "../../components/PlatformIcon";
+import { api } from "../../api/client";
 import type { Repo } from "@srrm/shared";
 
 type SortKey = "addedAt" | "name" | "releaseCount";
@@ -17,12 +18,7 @@ type SortDir = "asc" | "desc";
 export default function Repos() {
   const { t } = useI18n();
   const { user } = useAuth();
-  const {
-    data: repos = [],
-    isLoading,
-    error,
-    refetch,
-  } = useAdminRepos();
+  const { data: repos = [], isLoading, error, refetch } = useAdminRepos();
   const { data: stats = {} } = useAdminReposStats();
   const queryClient = useQueryClient();
   const [removingId, setRemovingId] = useState<string | null>(null);
@@ -41,9 +37,8 @@ export default function Repos() {
   const handleRemoveConfirm = async (id: string) => {
     setRemovingId(id);
     try {
-      await queryClient.invalidateQueries({
-        queryKey: ["admin-repos"],
-      });
+      await api.admin.repos.remove(id);
+      await queryClient.invalidateQueries({ queryKey: ["admin-repos"] });
       await queryClient.invalidateQueries({ queryKey: ["releases"] });
     } catch (e: any) {
       console.error("Remove repo failed:", e.message);
@@ -60,12 +55,9 @@ export default function Repos() {
     list.sort((a, b) => {
       let cmp = 0;
       if (sortKey === "addedAt") {
-        cmp =
-          new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime();
+        cmp = new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime();
       } else if (sortKey === "name") {
-        cmp = a.repo.localeCompare(b.repo, undefined, {
-          sensitivity: "base",
-        });
+        cmp = a.repo.localeCompare(b.repo, undefined, { sensitivity: "base" });
       } else {
         cmp = a.releaseCount - b.releaseCount;
       }
@@ -231,10 +223,7 @@ function RepoCard({
     <div className="py-3 px-4 rounded-lg border border-ctp-surface1/50 hover:bg-white/[0.02] transition-colors group">
       <div className="flex items-start gap-3">
         <span className="text-ctp-overlay1 shrink-0 mt-0.5">
-          <PlatformIcon
-            platform={repo.platform || "github"}
-            size={18}
-          />
+          <PlatformIcon platform={repo.platform || "github"} size={18} />
         </span>
 
         <div className="min-w-0 flex-1">
@@ -248,24 +237,18 @@ function RepoCard({
           </a>
           <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
             <a
-              href={
-                repo.repoUrl || "https://github.com/" + repo.fullName
-              }
+              href={repo.repoUrl || "https://github.com/" + repo.fullName}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[11px] text-ctp-overlay0 hover:text-ctp-subtext1 break-all"
             >
               {repo.repoUrl || "github.com/" + repo.fullName}
             </a>
-            <span className="text-[11px] text-ctp-overlay0 shrink-0">
-              ·
-            </span>
+            <span className="text-[11px] text-ctp-overlay0 shrink-0">·</span>
             <span className="text-[11px] text-ctp-overlay0 shrink-0">
               {relativeTime(repo.addedAt)}
             </span>
-            <span className="text-[11px] text-ctp-overlay0 shrink-0">
-              ·
-            </span>
+            <span className="text-[11px] text-ctp-overlay0 shrink-0">·</span>
             <span className="text-[11px] text-ctp-overlay0 shrink-0">
               {t("repos.releaseCount", { count: String(releaseCount) })}
             </span>
