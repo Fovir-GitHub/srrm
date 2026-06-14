@@ -408,6 +408,40 @@ function validateEnv(env: Env): void {
 }
 ```
 
+### 密码认证配置（可选）
+
+支持简单的密码登录，适合个人管理员使用。在 `wrangler.toml` 中配置：
+
+```toml
+[vars]
+PASSWORD = "your-secure-password-here"
+```
+
+**特性说明：**
+- 密码登录仅在设置了 `PASSWORD` 环境变量时启用
+- 登录用户固定为 `admin@srrm.local`，角色为 `admin`
+- 密码与环境变量 `PASSWORD` 进行直接比较
+- 支持与 SSO 登录共存（前端会自动检测并显示可用的登录方式）
+
+**Web 端实现细节：**
+
+登录页面会调用 `GET /api/auth/config` 来获取登录方式的可用状态，然后根据配置动态渲染登录表单：
+
+```typescript
+// 获取登录配置
+const config = await api.auth.config();
+// 返回: { ssoAvailable: boolean, passwordAvailable: boolean }
+```
+
+密码登录成功后，需要重新加载页面以重新初始化认证状态：
+
+```typescript
+// 密码登录成功
+await api.auth.passwordLogin(password);
+// 重新加载页面，使 AuthProvider 重新检查认证状态
+window.location.href = "/";
+```
+
 ---
 
 ## 7. 测试与验证指南
@@ -440,8 +474,11 @@ wrangler d1 execute <database-name> --local --command "SELECT * FROM config;"
 
 ```
 认证流程：
-  □ GET /api/auth/login  → 302 重定向至 SSO Provider
-  □ GET /api/auth/callback?code=xxx  → Cookie 写入 + 重定向首页
+  □ GET /api/auth/config  → 200 { ssoAvailable, passwordAvailable }
+  □ GET /api/auth/login  → 302 重定向至 SSO Provider (仅当 SSO 配置)
+  □ POST /api/auth/password-login { password: "xxx" }  → 200 Cookie 写入 (仅当 PASSWORD 配置)
+  □ GET /api/auth/callback?code=xxx  → Cookie 写入 + 重定向首页 (SSO 流程)
+  □ GET /api/auth/me  → 200 { authenticated: true, user: {...} }
   □ 访问 /api/admin/repos（无 Cookie）→ 401
   □ 访问 /api/admin/repos（有有效 Cookie，非 admin 邮箱）→ 403
   □ POST /api/auth/logout  → Cookie 清除
@@ -541,7 +578,9 @@ test: add scraper unit tests for release deduplication
 │ 手动触发抓取         │ POST /api/admin/scrape/trigger           │
 │ 获取 Release 列表    │ GET /api/releases?date=YYYY-MM-DD        │
 │ RSS 订阅链接         │ GET /feed.xml                            │
-│ 登录入口             │ GET /api/auth/login                      │
+│ 获取登录方式         │ GET /api/auth/config                     │
+│ SSO 登录入口         │ GET /api/auth/login                      │
+│ 密码登录             │ POST /api/auth/password-login            │
 │ 登出                 │ POST /api/auth/logout                    │
 ├──────────────────────┬──────────────────────────────────────────┤
 │ D1: 仓库列表表       │ repos                                    │
