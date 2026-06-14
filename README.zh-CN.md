@@ -57,7 +57,7 @@ flowchart TD
 - **Node.js** ≥ 18 且 **pnpm** ≥ 8
 - 一个启用了 Workers、D1 的 **Cloudflare 账户**
 - 已安装并完成认证的 [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)（`wrangler login`）
-- 一个 **兼容 OIDC 的 SSO 提供商**
+- 一个 **兼容 OIDC 的 SSO 提供商**（可选，或使用简单密码认证）
 
 ---
 
@@ -95,9 +95,13 @@ wrangler d1 execute srrm-db \
 
 打开 `apps/worker/wrangler.toml` 并填入你的配置值。
 
+如果要启用密码登录，请配置`PASSWORD`。
+
+如果要启用OIDC登录，请配置OIDC相关变量。
+
 ---
 
-### 4. 注册 OIDC 回调 URL
+### 4. 注册 OIDC 回调 URL (如果启用了OIDC)
 
 在你的 OIDC 提供商中，将以下地址添加为允许的重定向 URI：
 
@@ -157,7 +161,9 @@ pnpm run dev:web      # http://localhost:5173
 |---|---|---|
 | `GET` | `/api/releases` | 分页发布列表，支持日期过滤 |
 | `GET` | `/feed.xml` | RSS 2.0 订阅源 |
-| `GET` | `/api/auth/login` | 重定向至 SSO 提供商 |
+| `GET` | `/api/auth/config` | 获取可用的认证方法（SSO/密码） |
+| `GET` | `/api/auth/login` | 重定向至 SSO 提供商（需要配置了 SSO） |
+| `POST` | `/api/auth/password-login` | 密码登录（需要配置了 PASSWORD） |
 | `GET` | `/api/auth/callback` | SSO 回调处理器 |
 | `POST` | `/api/auth/logout` | 使会话失效（登出） |
 | `GET` | `/api/auth/me` | 返回当前用户信息 |
