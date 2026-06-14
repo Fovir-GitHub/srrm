@@ -88,8 +88,21 @@ export const api = {
     },
   },
   auth: {
+    config: () =>
+      request<{ ssoAvailable: boolean; passwordAvailable: boolean }>(
+        "/api/auth/config",
+        { method: "GET" },
+      ),
     login: () =>
       request<{ url: string }>("/api/auth/login", { method: "GET" }),
+    passwordLogin: (password: string) =>
+      request<{ success: boolean; user: User }>(
+        "/api/auth/password-login",
+        {
+          method: "POST",
+          body: JSON.stringify({ password }),
+        },
+      ),
     me: () =>
       request<{ authenticated: boolean; user?: User }>("/api/auth/me", {
         method: "GET",
