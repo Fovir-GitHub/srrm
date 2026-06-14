@@ -189,8 +189,9 @@ adminRoutes.post("/scrape/trigger", async (c) => {
 
 // POST /api/admin/notify/test — 测试通知配置
 adminRoutes.post("/notify/test", async (c) => {
-  const { buildNotifiers, dispatchNotifications } =
-    await import("../services/notifiers/index");
+  const { buildNotifiers, dispatchNotifications } = await import(
+    "../services/notifiers/index"
+  );
   const notifiers = buildNotifiers(c.env);
 
   if (notifiers.length === 0) {

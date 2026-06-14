@@ -16,6 +16,19 @@ function getTokenFromCookie(c: any): string | null {
 
 export const authRoutes = new Hono<{ Bindings: Env }>();
 
+// 获取登录配置：OIDC 和密码登录是否可用
+authRoutes.get("/config", (c) => {
+  const { SSO_ISSUER_URL, SSO_CLIENT_ID, SSO_CALLBACK_URL, PASSWORD } =
+    c.env;
+  const ssoAvailable = !!(
+    SSO_ISSUER_URL &&
+    SSO_CLIENT_ID &&
+    SSO_CALLBACK_URL
+  );
+  const passwordAvailable = !!PASSWORD;
+  return c.json({ ssoAvailable, passwordAvailable });
+});
+
 // 登录 - 重定向到 SSO 提供商
 authRoutes.get("/login", async (c) => {
   const { SSO_ISSUER_URL, SSO_CLIENT_ID, SSO_CALLBACK_URL } = c.env;
@@ -157,6 +170,55 @@ authRoutes.get("/callback", async (c) => {
       err instanceof Error ? err.message : err,
     );
     return c.json({ error: "Authentication failed" }, 500);
+  }
+});
+
+// 密码登录
+authRoutes.post("/password-login", async (c) => {
+  const { PASSWORD, JWT_SECRET } = c.env;
+
+  if (!PASSWORD) {
+    return c.json({ error: "Password login is not configured" }, 400);
+  }
+
+  if (!JWT_SECRET) {
+    return c.json({ error: "JWT_SECRET not configured" }, 500);
+  }
+
+  try {
+    const body = (await c.req.json()) as { password?: string };
+    const { password } = body;
+
+    if (!password) {
+      return c.json({ error: "Password is required" }, 400);
+    }
+
+    if (password !== PASSWORD) {
+      return c.json({ error: "Invalid password" }, 401);
+    }
+
+    const user = {
+      email: "admin@srrm.local",
+      role: "admin" as const,
+      exp: 0,
+    };
+    const jwt = await createToken(user, JWT_SECRET, c.env);
+
+    const expiresIn = getJwtExpiresIn(c.env);
+    setCookie(c, "srrm_token", jwt, {
+      httpOnly: true,
+      path: "/",
+      sameSite: "Lax",
+      ...(expiresIn > 0 ? { maxAge: expiresIn } : {}),
+    });
+
+    return c.json({ success: true, user });
+  } catch (err: unknown) {
+    console.error(
+      "[Password Login Error]",
+      err instanceof Error ? err.message : err,
+    );
+    return c.json({ error: "Login failed" }, 500);
   }
 });
 

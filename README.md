@@ -57,7 +57,7 @@ flowchart TD
 - **Node.js** ≥ 18 and **pnpm** ≥ 8
 - A **Cloudflare account** with Workers and D1 enabled
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) installed and authenticated (`wrangler login`)
-- An **OIDC-compatible SSO provider**
+- An **OIDC-compatible SSO provider** (optional, or use simple password authentication)
 
 ---
 
@@ -95,9 +95,13 @@ wrangler d1 execute srrm-db \
 
 Open `apps/worker/wrangler.toml` and fill in your values.
 
+To enable password-based login, configure `PASSWORD`.
+
+To enable OIDC login, configure the OIDC variables.
+
 ---
 
-### 4. Register the OIDC callback URL
+### 4. Register the OIDC callback URL (If OIDC is enabled)
 
 In your OIDC provider, add the following as an allowed redirect URI:
 
@@ -157,7 +161,9 @@ pnpm run dev:web      # http://localhost:5173
 |---|---|---|
 | `GET` | `/api/releases` | Paginated release list, supports date filtering |
 | `GET` | `/feed.xml` | RSS 2.0 feed |
-| `GET` | `/api/auth/login` | Redirect to SSO provider |
+| `GET` | `/api/auth/config` | Get available authentication methods (SSO/Password) |
+| `GET` | `/api/auth/login` | Redirect to SSO provider (requires SSO configured) |
+| `POST` | `/api/auth/password-login` | Login with password (requires PASSWORD configured) |
 | `GET` | `/api/auth/callback` | SSO callback handler |
 | `POST` | `/api/auth/logout` | Invalidate session |
 | `GET` | `/api/auth/me` | Returns current user info |

@@ -56,8 +56,12 @@
   "repos.cancelRemove": "取消",
   "login.title": "SRRM",
   "login.subtitle": "登录以管理你订阅的仓库版本发布",
+  "login.password": "密码",
+  "login.signIn": "登录",
+  "login.passwordRequired": "密码不能为空",
   "login.signInWithSSO": "SSO 登录",
   "login.signingIn": "登录中...",
+  "login.or": "或",
   "feed.notes": "发布说明",
   "feed.noNotes": "暂无发布说明",
   "feed.prerelease": "预发布",
@@ -73,5 +77,7 @@
   "common.backToTop": "返回顶部",
   "common.supportedPlatforms": "支持 GitHub、GitLab、Forgejo 和 Gitea（包括 Codeberg 等自托管实例）",
   "repos.urlPlaceholder": "如 https://github.com/owner/repo 或 owner/repo",
-  "filter.placeholder": "按仓库筛选..."
+  "filter.placeholder": "按仓库筛选...",
+  "lang.en": "English",
+  "lang.zh": "中文"
 }
