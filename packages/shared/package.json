@@ -1,6 +1,6 @@
 {
   "name": "@srrm/shared",
-  "version": "1.4.0",
+  "version": "",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
