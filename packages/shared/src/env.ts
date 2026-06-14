@@ -5,6 +5,9 @@ export interface Env {
   // Auth - JWT Secret
   JWT_SECRET: string;
 
+  // Password authentication (optional)
+  PASSWORD?: string;
+
   // Platform Tokens（均为可选，公开仓库不需要）
   GITHUB_TOKEN?: string;
   GITLAB_TOKEN?: string;

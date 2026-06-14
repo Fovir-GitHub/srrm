@@ -19,6 +19,9 @@ export type Env = {
   JWT_SECRET: string;
   JWT_EXPIRES_IN?: string;
 
+  // Password authentication (optional)
+  PASSWORD?: string;
+
   // Platform Tokens（均为可选，公开仓库不需要）
   GITHUB_TOKEN?: string;
   GITLAB_TOKEN?: string;
